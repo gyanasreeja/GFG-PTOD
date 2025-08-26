@@ -1,0 +1,50 @@
+Check if a String is Subsequence of Other
+Given two strings s1 and s2. You have to check that s1 is a subsequence of s2 or not.
+Note: A subsequence is a sequence that can be derived from another sequence by deleting some elements without changing the order of the remaining elements.
+
+Examples:
+
+Input: s1 = "AXY", s2 = "YADXCP"
+Output: false
+Explanation: s1 is not a subsequence of s2 as 'Y' appears before 'A'.
+Input: s1 = "gksrek", s2 = "geeksforgeeks"
+Output: true
+Explanation: If we combine the bold character of "geeksforgeeks", it equals to s1. So s1 is a subsequence of s2. 
+Constraints:
+1 ≤ s1.size(), s2.size() ≤ 106
+Slouction
+class Solution:
+    def isSubSeq(self, s1, s2):
+        """
+        Check if s1 is a subsequence of s2
+        
+        Args:
+        s1: String to check if it's a subsequence
+        s2: String to check against
+        
+        Returns:
+        bool: True if s1 is a subsequence of s2, False otherwise
+        
+        Time Complexity: O(n) where n is length of s2
+        Space Complexity: O(1)
+        """
+        # Handle edge cases
+        if len(s1) == 0:
+            return True
+        if len(s2) == 0:
+            return False
+        
+        # Two pointers approach
+        i = 0  # pointer for s1
+        j = 0  # pointer for s2
+        
+        # Traverse through s2
+        while j < len(s2) and i < len(s1):
+            # If characters match, move s1 pointer
+            if s1[i] == s2[j]:
+                i += 1
+            # Always move s2 pointer
+            j += 1
+        
+        # If we've matched all characters of s1, it's a subsequence
+        return i == len(s1)
