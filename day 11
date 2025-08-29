@@ -1,0 +1,53 @@
+Longest Prefix Suffix
+Difficulty: HardAccuracy: 27.91%Submissions: 160K+Points: 8
+Given a string s, of lowercase english alphabets, find the length of the longest proper prefix which is also a suffix.
+Note: Prefix and suffix can be overlapping but they should not be equal to the entire string.
+
+Examples :
+
+Input: s = "abab"
+Output: 2
+Explanation: The string "ab" is the longest prefix and suffix. 
+Input: s = "aabcdaabc"
+Output: 4
+Explanation: The string "aabc" is the longest prefix and suffix.
+Input: s = "aaaa"
+Output: 3
+Explanation: "aaa" is the longest prefix and suffix. 
+Constraints:
+1 ≤ s.size() ≤ 106
+s contains only lowercase English alphabets.
+Soluction:
+class Solution:
+    def getLPSLength(self, s):
+        n = len(s)
+        if n <= 1:
+            return 0
+        
+        # Initialize LPS array
+        lps = [0] * n
+        
+        # Variables for tracking
+        prev_lps = 0  # Length of previous LPS
+        i = 1        # Current position
+        
+        while i < n:
+            if s[i] == s[prev_lps]:
+                # Case 1: Characters match
+                # Extend current LPS by 1
+                prev_lps += 1
+                lps[i] = prev_lps
+                i += 1
+            elif prev_lps == 0:
+                # Case 2: No match and we're at the beginning
+                # No LPS possible for current position
+                lps[i] = 0
+                i += 1
+            else:
+                # Case 3: No match but we have some previous LPS
+                # Try with the LPS value of the previous LPS
+                # This creates a "fallback" mechanism
+                prev_lps = lps[prev_lps - 1]
+                # Don't increment i - we need to recheck current character
+        
+        return lps[n - 1]
