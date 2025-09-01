@@ -1,0 +1,93 @@
+Sum of Mode
+
+Given an array arr[] of positive integers and an integer k. You have to find the sum of the modes of all the subarrays of size k.
+Note: The mode of a subarray is the element that occurs with the highest frequency. If multiple elements have the same highest frequency, the smallest such element is considered the mode.
+
+Examples:
+
+Input: arr[] = [1, 2, 3, 2, 5, 2, 4, 4], k = 3
+Output: 13
+Explanation: The mode of each k size subarray is [1, 2, 2, 2, 2, 4] and sum of all modes is 13.
+Input: arr[] = [1, 2, 1, 3, 5], k = 2
+Output: 6
+Explanation: The mode of each k size subarray is [1, 1, 1, 3] and sum of all modes is 6.
+Solution:
+from collections import defaultdict
+import heapq
+
+class Solution:
+    def sumOfModes(self, arr, k):
+        if not arr or k == 0:
+            return 0
+        
+        n = len(arr)
+        if k == 1:
+            return sum(arr)
+        
+        # Frequency map: element -> count
+        freq = defaultdict(int)
+        # Frequency buckets: freq -> set of elements with that frequency
+        freq_buckets = defaultdict(set)
+        
+        total_sum = 0
+        
+        # Initialize first window
+        for i in range(k):
+            element = arr[i]
+            old_freq = freq[element]
+            new_freq = old_freq + 1
+            
+            # Update frequency buckets
+            if old_freq > 0:
+                freq_buckets[old_freq].remove(element)
+                if not freq_buckets[old_freq]:
+                    del freq_buckets[old_freq]
+            
+            freq[element] = new_freq
+            freq_buckets[new_freq].add(element)
+        
+        # Get mode for first window
+        total_sum += self.get_mode(freq_buckets)
+        
+        # Slide the window
+        for i in range(k, n):
+            # Remove leftmost element
+            left_element = arr[i - k]
+            old_freq = freq[left_element]
+            new_freq = old_freq - 1
+            
+            # Update frequency buckets for removal
+            freq_buckets[old_freq].remove(left_element)
+            if not freq_buckets[old_freq]:
+                del freq_buckets[old_freq]
+            
+            if new_freq > 0:
+                freq[left_element] = new_freq
+                freq_buckets[new_freq].add(left_element)
+            else:
+                del freq[left_element]
+            
+            # Add rightmost element
+            right_element = arr[i]
+            old_freq = freq[right_element]
+            new_freq = old_freq + 1
+            
+            # Update frequency buckets for addition
+            if old_freq > 0:
+                freq_buckets[old_freq].remove(right_element)
+                if not freq_buckets[old_freq]:
+                    del freq_buckets[old_freq]
+            
+            freq[right_element] = new_freq
+            freq_buckets[new_freq].add(right_element)
+            
+            # Get mode for current window
+            total_sum += self.get_mode(freq_buckets)
+        
+        return total_sum
+    
+    def get_mode(self, freq_buckets):
+        """Get the mode from frequency buckets"""
+        max_freq = max(freq_buckets.keys())
+        elements_with_max_freq = freq_buckets[max_freq]
+        return min(elements_with_max_freq)
