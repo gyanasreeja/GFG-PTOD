@@ -1,0 +1,57 @@
+Min Add to Make Parentheses Valid
+Difficulty: MediumAccuracy: 67.25%Submissions: 8K+Points: 4
+You are given a string s consisting only of the characters '(' and ')'. Your task is to determine the minimum number of parentheses (either '(' or ')') that must be inserted at any positions to make the string s a valid parentheses string.
+
+A parentheses string is considered valid if:
+
+Every opening parenthesis '(' has a corresponding closing parenthesis ')'.
+Every closing parenthesis ')' has a corresponding opening parenthesis '('.
+Parentheses are properly nested.
+Examples:
+
+Input: s = "(()("
+Output: 2
+Explanation: There are two unmatched '(' at the end, so we need to add two ')' to make the string valid.
+Input: s = ")))"
+Output: 3
+Explanation: Three '(' need to be added at the start to make the string valid.
+Input: s = ")()()"
+Output: 1 
+Explanation: The very first ')' is unmatched, so we need to add one '(' at the beginning.
+Constraints:
+1 ≤ s.size() ≤ 105
+s[i] ∈ { '(' , ')' }
+Solution:
+class Solution:
+    def minParentheses(self, s):
+        """
+        Find minimum number of parentheses to add to make string valid.
+        
+        Algorithm:
+        1. Track unmatched opening parentheses with a counter
+        2. For each closing parenthesis:
+           - If there's an unmatched opening, they pair up
+           - Otherwise, we need to add an opening parenthesis
+        3. Add closing parentheses for any remaining unmatched opening ones
+        
+        Time Complexity: O(n)
+        Space Complexity: O(1)
+        """
+        unmatched_open = 0  # Count of '(' that need matching ')'
+        additions_needed = 0  # Total additions required
+        
+        for char in s:
+            if char == '(':
+                unmatched_open += 1
+            elif char == ')':
+                if unmatched_open > 0:
+                    # This ')' matches with a previous '('
+                    unmatched_open -= 1
+                else:
+                    # This ')' has no matching '(' - need to add one
+                    additions_needed += 1
+        
+        # Add closing parentheses for remaining unmatched opening ones
+        additions_needed += unmatched_open
+        
+        return additions_needed
