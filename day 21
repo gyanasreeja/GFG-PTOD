@@ -1,0 +1,43 @@
+Longest Subarray Length
+
+You are given an array of integers arr[]. Your task is to find the length of the longest subarray such that all the elements of the subarray are smaller than or equal to the length of the subarray.
+
+Examples:
+
+Input: arr[] = [1, 2, 3]
+Output: 3
+Explanation: The longest subarray is the entire array itself, which has a length of 3. All elements in the subarray are less than or equal to 3.
+Input: arr[] = [6, 4, 2, 5]
+Output: 0
+Explanation: There is no subarray where all elements are less than or equal to the length of the subarray. The longest subarray is empty, which has a length of 0.
+Constraints:
+1 ≤ arr.size() ≤ 105
+1 ≤ arr[i] ≤ 109
+Solution:
+class Solution:
+    def longestSubarray(self, arr):
+        n = len(arr)
+        if n == 0:
+            return 0
+        
+        max_length = 0
+        
+        # Key insight: For each position, find the longest subarray ending at that position
+        # We'll use the fact that if a subarray of length k is valid, 
+        # then all elements in it are <= k
+        
+        for i in range(n):
+            # Start a new subarray at position i
+            current_length = 0
+            max_element = 0
+            
+            # Extend subarray from position i onwards
+            for j in range(i, n):
+                current_length += 1
+                max_element = max(max_element, arr[j])
+                
+                # Check if current subarray [i...j] is valid
+                if max_element <= current_length:
+                    max_length = max(max_length, current_length)
+        
+        return max_length
