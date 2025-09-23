@@ -1,0 +1,74 @@
+Queue Reversal
+Difficulty: EasyAccuracy: 77.98%Submissions: 149K+Points: 2
+Given a queue q containing integer elements, your task is to reverse the queue.
+
+Examples:
+
+Input: q[] = [5, 10, 15, 20, 25]
+Output: [25, 20, 15, 10, 5]
+Explanation: After reversing the given elements of the queue, the resultant queue will be 25 20 15 10 5.
+Input: q[] = [1, 2, 3, 4, 5]
+Output: [5, 4, 3, 2, 1]
+Explanation: After reversing the given elements of the queue, the resultant queue will be 5 4 3 2 1.
+Constraints:
+1 ≤ q.size() ≤ 103
+0 ≤ q[i] ≤ 105
+Solution:
+from collections import deque
+class Solution:
+    def reverseQueue(self, q):
+        """
+        Approach 1: Using a stack (most intuitive)
+        Time Complexity: O(n)
+        Space Complexity: O(n)
+        """
+        stack = []
+        
+        # Push all elements from queue to stack
+        while q:
+            stack.append(q.popleft())
+        
+        # Pop all elements from stack back to queue
+        while stack:
+            q.append(stack.pop())
+        
+        return q
+    
+    def reverseQueueRecursive(self, q):
+        """
+        Approach 2: Using recursion
+        Time Complexity: O(n)
+        Space Complexity: O(n) due to recursion stack
+        """
+        # Base case: if queue is empty
+        if not q:
+            return q
+        
+        # Remove front element
+        front = q.popleft()
+        
+        # Recursively reverse the remaining queue
+        self.reverseQueueRecursive(q)
+        
+        # Add the front element to the back
+        q.append(front)
+        
+        return q
+    
+    def reverseQueueIterative(self, q):
+        """
+        Approach 3: Convert to list, reverse, and rebuild queue
+        Time Complexity: O(n)
+        Space Complexity: O(n)
+        """
+        # Convert queue to list
+        elements = list(q)
+        
+        # Clear the queue
+        q.clear()
+        
+        # Add elements back in reverse order
+        for i in range(len(elements) - 1, -1, -1):
+            q.append(elements[i])
+        
+        return q
