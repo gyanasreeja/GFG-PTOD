@@ -1,0 +1,171 @@
+
+Design MinMax Queue
+
+Design a SpecialQueue data structure that functions like a normal queue but with additional support for retrieving the minimum and maximum element efficiently.
+The SpecialQueue must support the following operations:
+
+enqueue(x): Insert an element x at the rear of the queue.
+dequeue(): Remove the element from the front of the queue.
+getFront(): Return the front element without removing.
+getMin(): Return the minimum element in the queue in O(1) time.
+getMax(): Return the maximum element in the queue in O(1) time.
+There will be a sequence of queries queries[][]. The queries are represented in numeric form:
+
+1 x : Call enqueue(x)
+2:  Call dequeue()
+3: Call getFront()
+4: Call getMin()
+5: Call getMax()
+The driver code will process the queries, call the corresponding functions, and print the outputs of getFront(), getMin(), getMax() operations.
+You only need to implement the above five functions.
+
+Note: It is guaranteed that all the queries are valid.
+
+Examples:
+
+Input: q = 6, queries[][] = [[1, 4], [1, 2], [3], [4], [2], [5]]
+Output: [4, 2, 2]
+Explanation: Queries on queue are as follows:
+enqueue(4): Insert 4 at the rear of the queue.
+enqueue(2): Insert 2 at the rear of the queue.
+return the front element i.e 4
+return minimum element from the queue i.e 2
+dequeue(): Remove the front element 4 from the queue
+return maximum element from the queue i.e 2
+Input: q = 4, queries[][] = [[1, 3], [4], [1, 5], [5]]
+Output: [3, 5]
+Explanation: Queries on queue are as follows:
+enqueue(3): Insert 3 at the rear of the queue.
+return minimum element from the queue i.e 3
+enqueue(5): Insert 5 at the rear of the queue.
+return maximum element from the queue i.e 5
+Constraints:
+1 ≤ queries.size() ≤ 105
+0 ≤ values in the queue ≤ 109
+Solution:
+from collections import deque
+
+class SpecialQueue:
+    def __init__(self):
+        # Main queue to store elements
+        self.queue = deque()
+        # Deque to track minimum elements (stores indices)
+        self.min_deque = deque()
+        # Deque to track maximum elements (stores indices)  
+        self.max_deque = deque()
+        # Counter to assign unique indices to elements
+        self.index = 0
+    
+    def enqueue(self, x):
+        # Insert element into the queue
+        self.queue.append((x, self.index))
+        
+        # Maintain min_deque in increasing order of values
+        # Remove elements from back that are >= current element
+        while self.min_deque and self.queue[self.min_deque[-1]][0] >= x:
+            self.min_deque.pop()
+        self.min_deque.append(len(self.queue) - 1)
+        
+        # Maintain max_deque in decreasing order of values
+        # Remove elements from back that are <= current element
+        while self.max_deque and self.queue[self.max_deque[-1]][0] <= x:
+            self.max_deque.pop()
+        self.max_deque.append(len(self.queue) - 1)
+        
+        self.index += 1
+    
+    def dequeue(self):
+        # Remove element from the queue
+        if not self.queue:
+            return
+        
+        # Remove from min_deque if the front element is being removed
+        if self.min_deque and self.min_deque[0] == 0:
+            self.min_deque.popleft()
+        
+        # Remove from max_deque if the front element is being removed
+        if self.max_deque and self.max_deque[0] == 0:
+            self.max_deque.popleft()
+        
+        # Remove front element
+        self.queue.popleft()
+        
+        # Update indices in deques after removal
+        for i in range(len(self.min_deque)):
+            self.min_deque[i] -= 1
+        for i in range(len(self.max_deque)):
+            self.max_deque[i] -= 1
+    
+    def getFront(self):
+        # Get front element
+        if self.queue:
+            return self.queue[0][0]
+        return None
+    
+    def getMin(self):
+        # Get minimum element in O(1) time
+        if self.min_deque:
+            return self.queue[self.min_deque[0]][0]
+        return None
+    
+    def getMax(self):
+        # Get maximum element in O(1) time
+        if self.max_deque:
+            return self.queue[self.max_deque[0]][0]
+        return None
+
+# Test with the provided examples
+def test_special_queue():
+    # Example 1
+    print("Example 1:")
+    sq = SpecialQueue()
+    queries = [[1, 4], [1, 2], [3], [4], [2], [5]]
+    results = []
+    
+    for query in queries:
+        if query[0] == 1:  # enqueue
+            sq.enqueue(query[1])
+            print(f"enqueue({query[1]})")
+        elif query[0] == 2:  # dequeue
+            sq.dequeue()
+            print("dequeue()")
+        elif query[0] == 3:  # getFront
+            front = sq.getFront()
+            results.append(front)
+            print(f"getFront(): {front}")
+        elif query[0] == 4:  # getMin
+            min_val = sq.getMin()
+            results.append(min_val)
+            print(f"getMin(): {min_val}")
+        elif query[0] == 5:  # getMax
+            max_val = sq.getMax()
+            results.append(max_val)
+            print(f"getMax(): {max_val}")
+    
+    print(f"Output: {results}")
+    print()
+    
+    # Example 2
+    print("Example 2:")
+    sq2 = SpecialQueue()
+    queries2 = [[1, 3], [4], [1, 5], [5]]
+    results2 = []
+    
+    for query in queries2:
+        if query[0] == 1:  # enqueue
+            sq2.enqueue(query[1])
+            print(f"enqueue({query[1]})")
+        elif query[0] == 4:  # getMin
+            min_val = sq2.getMin()
+            results2.append(min_val)
+            print(f"getMin(): {min_val}")
+        elif query[0] == 5:  # getMax
+            max_val = sq2.getMax()
+            results2.append(max_val)
+            print(f"getMax(): {max_val}")
+    
+    print(f"Output: {results2}")
+
+# Run tests
+if __name__ == "__main__":
+    test_special_queue()
