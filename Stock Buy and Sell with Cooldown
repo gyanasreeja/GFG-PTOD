@@ -1,0 +1,44 @@
+
+Given an array arr[], where the ith element of arr[] represents the price of a stock on the ith day (all prices are non-negative integers). Find the maximum profit you can make by buying and selling stocks such that after selling a stock, you cannot buy again on the next day (i.e., there is a one-day cooldown).
+
+Examples:
+
+Input: arr[] = [0, 2, 1, 2, 3]
+Output: 3
+Explanation: You first buy on day 1, sell on day 2 then cool down, then buy on day 4, and sell on day 5. The total profit earned is (2-0) + (3-2) = 3, which is the maximum achievable profit.
+Input:  arr[] = [3, 1, 6, 1, 2, 4]
+Output: 7
+Explanation: You first buy on day 2 and sell on day 3 then cool down, then again you buy on day 5 and then sell on day 6. Clearly, the total profit earned is (6-1) + (4-2) = 7, which is the maximum achievable profit.
+Constraint:
+1 ≤ arr.size() ≤ 105
+1 ≤ arr[i] ≤ 104
+
+Solution
+class Solution:
+    def maxProfit(self, arr):
+        if not arr or len(arr) < 2:
+            return 0
+        
+        n = len(arr)
+        
+        # Three states: hold, sold (cooldown next), rest (can buy)
+        hold = float('-inf')  # Max profit if holding stock
+        sold = 0              # Max profit if just sold (cooldown)
+        rest = 0              # Max profit if resting (can buy)
+        
+        for price in arr:
+            prev_hold = hold
+            prev_sold = sold
+            prev_rest = rest
+            
+            # If we hold today: either held yesterday or buy today
+            hold = max(prev_hold, prev_rest - price)
+            
+            # If we sold today: we must have held yesterday
+            sold = prev_hold + price
+            
+            # If we rest today: either rested yesterday or cooled down
+            rest = max(prev_rest, prev_sold)
+        
+        # Maximum profit when not holding any stock
+        return max(sold, rest)
