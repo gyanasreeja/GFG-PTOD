@@ -1,0 +1,87 @@
+Make Strings Equal
+
+Given two strings s and t, consisting of lowercase English letters. You are also given, a 2D array transform[][] of size n*2, where each entry [x, y] means that you are allowed to transform character x into character y and an array cost[], where cost[i] is the cost of transforming transform[i][0] into transform[i][1]. You can apply any transformation any number of times on either string.
+
+Your task is to find the minimum total cost required to make the strings identical. If it is impossible to make the two strings identical using the available transformations, return -1.
+
+Examples:
+
+Input: s = "abcc", t = "bccc", transform[][] = [['a', 'b'], ['b', 'c'], ['c', 'a']], cost[] = [2, 1, 4]
+Output: 3
+Explanation: We can convert both strings into "bccc" with a cost of 3 using these operations:
+transform at Position 0 in s: a -> b (cost 2)
+transform at Position 1 in s: b -> c (cost 1)
+Other characters already match.
+Input: s = "az", t = "dc", transform[][] = [['a', 'b'], ['b', 'c'], ['c', 'd'], ['a', 'd'], ['z', 'c']], cost[] = [5, 3, 2, 50, 10]
+Output: 20
+Explanation: We can convert both strings into "dc" with a cost of 20 using these operations:
+transform at Position 0 in s: a -> d by path a->b->c->d (cost 5+3+2=10)
+transform at Position 1 in s: z -> c (cost 10)
+Input: s = "xyz", t = "xzy", transform[][] = [['x', 'y'], ['x', 'z']], cost[] = [3, 3]
+Output: -1
+Explanation: It is not possible to make the two strings equal.
+Constraints:
+1 ≤ s.size() = t.size() ≤ 105
+1 ≤ transform.size() = cost.size() ≤ 500
+'a' ≤ transform[i][0], transform[i][1] ≤ 'z'
+1 ≤ cost[i] ≤ 500
+class Solution:
+    def minCost(self, s, t, transform, cost):
+        if len(s) != len(t):
+            return -1
+        
+        # Initialize distance matrix with infinity
+        INF = float('inf')
+        dist = [[INF] * 26 for _ in range(26)]
+        
+        # Distance from a character to itself is 0
+        for i in range(26):
+            dist[i][i] = 0
+        
+        # Build the graph from transformations
+        for i in range(len(transform)):
+            src = ord(transform[i][0]) - ord('a')
+            dst = ord(transform[i][1]) - ord('a')
+            # Keep minimum cost if there are multiple edges
+            dist[src][dst] = min(dist[src][dst], cost[i])
+        
+        # Floyd-Warshall algorithm to find shortest paths
+        for k in range(26):
+            for i in range(26):
+                for j in range(26):
+                    if dist[i][k] != INF and dist[k][j] != INF:
+                        dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+        
+        total_cost = 0
+        
+        # For each position, find minimum cost to make characters equal
+        for i in range(len(s)):
+            if s[i] == t[i]:
+                continue
+            
+            src_idx = ord(s[i]) - ord('a')
+            tgt_idx = ord(t[i]) - ord('a')
+            
+            min_transform_cost = INF
+            
+            # Option 1: Transform s[i] to t[i]
+            min_transform_cost = min(min_transform_cost, dist[src_idx][tgt_idx])
+            
+            # Option 2: Transform t[i] to s[i]
+            min_transform_cost = min(min_transform_cost, dist[tgt_idx][src_idx])
+            
+            # Option 3: Transform both to a common character
+            for c in range(26):
+                cost_from_s = dist[src_idx][c]
+                cost_from_t = dist[tgt_idx][c]
+                if cost_from_s != INF and cost_from_t != INF:
+                    min_transform_cost = min(min_transform_cost, 
+                                            cost_from_s + cost_from_t)
+            
+            # If no valid transformation exists
+            if min_transform_cost == INF:
+                return -1
+            
+            total_cost += min_transform_cost
+        
+        return total_cost
