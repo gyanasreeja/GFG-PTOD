@@ -1,0 +1,84 @@
+inimum Window SubsequenceM
+Difficulty: MediumAccuracy: 49.43%Submissions: 22K+Points: 4Average Time: 45m
+You are given two strings, s1 and s2. Your task is to find the smallest substring in s1 such that s2 appears as a subsequence within that substring.
+
+The characters of s2 must appear in the same sequence within the substring of s1.
+If there are multiple valid substrings of the same minimum length, return the one that appears first in s1.
+If no such substring exists, return an empty string.
+Note: Both the strings contain only lowercase english letters.
+
+Examples:
+
+Input: s1 = "geeksforgeeks", s2 = "eksrg"
+Output: "eksforg"
+Explanation: "eksforg" satisfies all required conditions. s2 is its subsequence and it is smallest and leftmost among all possible valid substrings of s1.
+Input: s1 = "abcdebdde", s2 = "bde" 
+Output: "bcde"
+Explanation:  "bcde" and "bdde" are two substring of s1 where s2 occurs as subsequence but "bcde" occur first so we return that.
+Input: s1 = "ad", s2 = "b" 
+Output: ""
+Explanation: There is no substring exists.
+Constraints:
+1 ≤ s1.length ≤ 104
+1 ≤ s2.length ≤ 50
+Solution: class Solution:
+    def minWindow(self, s1, s2):
+        """
+        Find the smallest substring in s1 that contains s2 as a subsequence.
+        
+        Time Complexity: O(n * m) where n = len(s1), m = len(s2)
+        Space Complexity: O(1)
+        """
+        n, m = len(s1), len(s2)
+        min_len = float('inf')
+        min_start = 0
+        
+        # Start from each position in s1
+        i = 0
+        while i < n:
+            # Skip if current character doesn't match first character of s2
+            if s1[i] != s2[0]:
+                i += 1
+                continue
+            
+            # Try to match all characters of s2 starting from position i
+            j = 0  # pointer for s2
+            k = i  # pointer for s1
+            
+            # Forward pass: match all characters of s2
+            while k < n and j < m:
+                if s1[k] == s2[j]:
+                    j += 1
+                k += 1
+            
+            # If we couldn't match all characters of s2, no point continuing
+            if j < m:
+                break
+            
+            # We found a match ending at position k-1
+            # Now backtrack to find the actual start of this window
+            end = k - 1
+            j = m - 1  # start from last character of s2
+            
+            # Backward pass: find the leftmost start position
+            while j >= 0:
+                if s1[end] == s2[j]:
+                    j -= 1
+                end -= 1
+            
+            # start position is end + 1 (since we decremented one extra time)
+            start = end + 1
+            window_len = k - start
+            
+            # Update minimum window if this is smaller
+            if window_len < min_len:
+                min_len = window_len
+                min_start = start
+            
+            # Move to the next potential starting position
+            i = start + 1
+        
+        # Return the result
+        if min_len == float('inf'):
+            return ""
+        return s1[min_start:min_start + min_len]
