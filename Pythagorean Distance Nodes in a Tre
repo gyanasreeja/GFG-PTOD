@@ -1,0 +1,703 @@
+
+You are given an integer n and an undirected tree with n nodes numbered from 0 to n - 1. The tree is represented by a 2D array edges of length n - 1, where edges[i] = [ui, vi] indicates an undirected edge between ui and vi.
+
+You are also given three distinct target nodes x, y, and z.
+
+For any node u in the tree:
+
+Let dx be the distance from u to node x
+Let dy be the distance from u to node y
+Let dz be the distance from u to node z
+The node u is called special if the three distances form a Pythagorean Triplet.
+
+Return an integer denoting the number of special nodes in the tree.
+
+A Pythagorean triplet consists of three integers a, b, and c which, when sorted in ascending order, satisfy a2 + b2 = c2.
+
+The distance between two nodes in a tree is the number of edges on the unique path between them.
+
+ 
+
+Example 1:
+
+Input: n = 4, edges = [[0,1],[0,2],[0,3]], x = 1, y = 2, z = 3
+
+Output: 3
+
+Explanation:
+
+For each node, we compute its distances to nodes x = 1, y = 2, and z = 3.
+
+Node 0 has distances 1, 1, and 1. After sorting, the distances are 1, 1, and 1, which do not satisfy the Pythagorean condition.
+Node 1 has distances 0, 2, and 2. After sorting, the distances are 0, 2, and 2. Since 02 + 22 = 22, node 1 is special.
+Node 2 has distances 2, 0, and 2. After sorting, the distances are 0, 2, and 2. Since 02 + 22 = 22, node 2 is special.
+Node 3 has distances 2, 2, and 0. After sorting, the distances are 0, 2, and 2. This also satisfies the Pythagorean condition.
+Therefore, nodes 1, 2, and 3 are special, and the answer is 3.
+
+Example 2:
+
+Input: n = 4, edges = [[0,1],[1,2],[2,3]], x = 0, y = 3, z = 2
+
+Output: 0
+
+Explanation:
+
+For each node, we compute its distances to nodes x = 0, y = 3, and z = 2.
+
+Node 0 has distances 0, 3, and 2. After sorting, the distances are 0, 2, and 3, which do not satisfy the Pythagorean condition.
+Node 1 has distances 1, 2, and 1. After sorting, the distances are 1, 1, and 2, which do not satisfy the Pythagorean condition.
+Node 2 has distances 2, 1, and 0. After sorting, the distances are 0, 1, and 2, which do not satisfy the Pythagorean condition.
+Node 3 has distances 3, 0, and 1. After sorting, the distances are 0, 1, and 3, which do not satisfy the Pythagorean condition.
+No node satisfies the Pythagorean condition. Therefore, the answer is 0.
+
+Example 3:
+
+Input: n = 4, edges = [[0,1],[1,2],[1,3]], x = 1, y = 3, z = 0
+
+Output: 1
+
+Explanation:
+
+For each node, we compute its distances to nodes x = 1, y = 3, and z = 0.
+
+Node 0 has distances 1, 2, and 0. After sorting, the distances are 0, 1, and 2, which do not satisfy the Pythagorean condition.
+Node 1 has distances 0, 1, and 1. After sorting, the distances are 0, 1, and 1. Since 02 + 12 = 12, node 1 is special.
+Node 2 has distances 1, 2, and 2. After sorting, the distances are 1, 2, and 2, which do not satisfy the Pythagorean condition.
+Node 3 has distances 1, 0, and 2. After sorting, the distances are 0, 1, and 2, which do not satisfy the Pythagorean condition.
+Therefore, the answer is 1.
+
+ 
+
+Constraints:
+
+4 <= n <= 105
+edges.length == n - 1
+edges[i] = [ui, vi]
+0 <= ui, vi, x, y, z <= n - 1
+x, y, and z are pairwise distinct.
+The input is generated such that edges represent a valid tree.
+
+Excellent problem, Sreeja 👍 — this is a classic Tree + BFS + Distance problem.
+We can solve it in O(n) time and O(n) space, which is optimal for n ≤ 10⁵.
+
+Let’s go step by step.
+
+✅ Key Observation
+
+In a tree, distance between nodes = BFS levels.
+
+So:
+
+If we compute:
+
+dx[u] = distance from x to u
+
+dy[u] = distance from y to u
+
+dz[u] = distance from z to u
+
+Then for each node u:
+
+Sort(dx, dy, dz) → a, b, c
+
+Check: a² + b² == c²
+
+🧠 Main Idea (Optimal)
+
+We just need 3 BFS traversals:
+
+BFS from x
+
+BFS from y
+
+BFS from z
+
+Each BFS = O(n)
+
+Total = O(n) ✅
+
+✅ Algorithm
+Step 1: Build adjacency list
+Step 2: BFS from x → dx[]
+Step 3: BFS from y → dy[]
+Step 4: BFS from z → dz[]
+Step 5: Count valid nodes
+✅ Optimal Python Solution
+from collections import deque
+
+class Solution(object):
+    def countSpecialNodes(self, n, edges, x, y, z):
+
+        # Step 1: Build graph
+        graph = [[] for _ in range(n)]
+
+        for u, v in edges:
+            graph[u].append(v)
+            graph[v].append(u)
+
+        # BFS function
+        def bfs(start):
+            dist = [-1] * n
+            q = deque()
+
+            q.append(start)
+            dist[start] = 0
+
+            while q:
+                u = q.popleft()
+
+                for v in graph[u]:
+                    if dist[v] == -1:
+                        dist[v] = dist[u] + 1
+                        q.append(v)
+
+            return dist
+
+        # Step 2–4: Distances
+        dx = bfs(x)
+        dy = bfs(y)
+        dz = bfs(z)
+
+        # Step 5: Count special nodes
+        count = 0
+
+        for i in range(n):
+            a, b, c = sorted([dx[i], dy[i], dz[i]])
+
+            if a*a + b*b == c*c:
+                count += 1
+
+        return count
+
+⏱ Complexity (Optimal)
+Type	Value
+Time	O(n) ✅
+Space	O(n) ✅
+
+Why?
+
+3 BFS → 3n
+
+Adjacency list → n
+
+Distance arrays → n
+
+Total linear.
+
+📊 Why This Is Best Possible
+
+You must:
+
+✔ Visit every node
+✔ Check every edge
+
+So O(n) is minimum.
+
+No faster solution exists.
+
+⭐ Interview Explanation (Perfect)
+
+Say this:
+
+“I run BFS from x, y, and z to compute distances. Then for each node, I check if the three distances form a Pythagorean triplet. This runs in linear time.”
+
+This sounds very strong 💯
+
+🚀 Extra Optimization (Optional)
+
+Instead of sorted(), you can do:
+
+a = dx[i]
+b = dy[i]
+c = dz[i]
+
+m = max(a,b,c)
+s = a*a + b*b + c*c - m*m
+
+if s == m*m:
+    count += 1
+
+
+Avoids sorting → slightly faster.
+
+If you want, next I can show you:
+
+👉 DFS version
+👉 LCA-based approach
+👉 Harder tree problems
+
+Just tell me 😊
+
+find nthsallest integer memory limit exceding showing
+
+Good question, Sreeja 👍 — if you are getting “Memory Limit Exceeded” for Find Nth Smallest Integer With K One Bits, it means you are probably:
+
+❌ Storing many numbers in a list
+❌ Using combinations / DP
+❌ Saving all answers before picking nth
+
+Which wastes memory.
+
+✅ Best Fix: Use O(1) Memory (No Lists)
+
+You should use Gosper’s Hack, which generates only one number at a time.
+
+No arrays → No memory issue 💯
+
+🏆 Final Optimal Solution (No MLE, No TLE)
+class Solution(object):
+    def findNthSmallest(self, n, k):
+
+        # Smallest number with k ones
+        x = (1 << k) - 1
+
+        for _ in range(n - 1):
+
+            c = x & -x
+            r = x + c
+            x = (((r ^ x) >> 2) // c) | r
+
+        return x
+
+📌 Why This Solves MLE
+Method	Memory
+List + sort ❌	O(thousands)
+Combinations ❌	Huge
+Gosper ✅	O(1)
+
+We only keep:
+
+x, c, r
+
+
+3 variables → constant memory.
+
+🧠 Common Mistake (Causes MLE)
+
+If you did something like:
+
+arr = []
+arr.append(num)   # ❌ stores all
+
+
+or
+
+list(combinations(...))  # ❌ huge
+
+
+→ MLE happens.
+
+⭐ Interview Tip
+
+If interviewer asks:
+
+“How did you optimize memory?”
+
+Say:
+
+“Instead of storing all values, I generate the next valid number in constant space.”
+
+Very good answer 💯
+
+If you want, paste your code here, and I’ll fix it line-by-line for you 😊
+
+optimse  complexity is o(n 
+
+Yes, Sreeja 👍 — for “Find Nth Smallest Integer With K One Bits”, the best possible optimized complexity is already
+
+✅ Time: O(n)
+✅ Space: O(1)
+
+And it cannot be improved further.
+
+Let me explain clearly why, and give you the final optimal logic again.
+
+🧠 Why O(n) Is Optimal
+
+You are asked to find the n-th number.
+
+That means:
+
+👉 You must generate at least n valid numbers.
+
+So minimum work = n steps.
+
+Therefore:
+
+Lower bound = Ω(n)
+Best possible = O(n)
+
+
+You cannot do better than O(n).
+
+✅ Optimal Method: Gosper’s Hack
+
+This generates the next number with same number of set bits in constant time.
+
+So:
+
+n steps × O(1) = O(n)
+
+
+Perfect.
+
+🏆 Final Optimized Code (Best Possible)
+class Solution(object):
+    def findNthSmallest(self, n, k):
+
+        # smallest number with k ones
+        x = (1 << k) - 1
+
+        for _ in range(n - 1):
+
+            c = x & -x
+            r = x + c
+            x = (((r ^ x) >> 2) // c) | r
+
+        return x
+
+📊 Comparison
+Method	Time	Space	Status
+Brute	O(N·bits)	O(1)	❌ Slow
+Combinations	Huge	Huge	❌ MLE
+DP	O(nk)	O(k)	⚠️ Extra
+Gosper	O(n)	O(1)	✅ Best
+⭐ Interview Explanation
+
+If asked:
+
+“What is the optimized complexity?”
+
+Say:
+
+“We generate each valid number in constant time, so total time is O(n) and space is O(1), which is optimal.”
+
+This sounds very professional 💯
+
+If you want, I can next teach you:
+
+👉 How Gosper’s formula works internally
+👉 Similar bit-manipulation problems
+👉 How to derive this trick in interviews
+
+Just tell me 😊
+
+time complexity is o(n * k)
+
+Good, Sreeja 👍 — now you’re thinking at a deeper algorithm-analysis level. Let’s clear this properly.
+
+For “Find Nth Smallest Integer With K One Bits”, there are two common approaches:
+
+✅ 1. DP / Combination Approach
+👉 Time = O(n · k)
+
+If you use DP / combinatorics, like:
+
+Counting how many numbers with k bits up to length L
+
+Building answer bit by bit
+
+Then yes:
+
+Time = O(n · k)
+Space = O(k)
+
+
+This happens when you do something like:
+
+dp[i][j] = number of ways with i bits and j ones
+
+
+or greedy using combinations.
+
+So O(nk) is correct for that approach.
+
+❌ 2. Brute / Combination List
+
+Time = Exponential ❌
+Memory = Huge ❌ (MLE)
+
+🏆 3. Gosper’s Hack (Best)
+👉 Time = O(n)
+👉 Space = O(1)
+
+Because:
+
+Each “next number” is computed in constant time, independent of k.
+
+No loops over k.
+
+🧠 Why Gosper is NOT O(nk)
+
+Look at this part:
+
+c = x & -x
+r = x + c
+x = (((r ^ x) >> 2) // c) | r
+
+
+These are:
+
+✔ Bitwise ops
+✔ Arithmetic ops
+
+All are O(1) on fixed-size integers (≤ 50 bits).
+
+So:
+
+Each step = O(1)
+Total = n steps
+→ O(n)
+
+
+Not O(nk).
+
+📌 When It Becomes O(nk)
+
+It becomes O(nk) when you:
+
+❌ Recount bits every time
+
+bin(x).count('1')   # O(k)
+
+
+❌ Loop over bits
+
+for i in range(k):
+
+
+❌ Build bit arrays
+
+Then:
+
+n iterations × k work = O(nk)
+
+✅ Summary (Important for Interviews)
+Method	Time	Space	Good?
+DP/Greedy	O(nk)	O(k)	OK
+Brute	O(nk)	O(1)	❌
+Gosper	O(n)	O(1)	✅ Best
+⭐ Interview Answer
+
+If interviewer says:
+“Isn’t this O(nk)?”
+
+You reply:
+
+“No, with Gosper’s hack each next number is generated in constant time using bit operations, so total time is O(n).”
+
+That’s a strong answer 💯
+
+If you want, I can now show you the DP O(nk) version and explain it too, so you know both.
+
+dp and greedy
+
+Great, Sreeja 👍 — learning DP + Greedy versions is very important for interviews, because sometimes Gosper’s hack is not expected, but DP/Greedy is.
+
+Let’s go step by step.
+
+✅ Problem Recap
+
+We want:
+
+The n-th smallest number with exactly k ones in binary.
+
+Example:
+
+k = 2 → 3, 5, 6, 9, 10, ...
+
+🟢 1️⃣ DP + Greedy Approach (O(n·k))
+
+This is the combinatorics-based solution.
+
+We build the number bit by bit using counting.
+
+🧠 Idea
+
+Let’s say we are building a binary number from MSB → LSB.
+
+At each bit position, we decide:
+
+👉 Put 0 or 1?
+
+We use DP to know:
+
+How many numbers are possible if we fix this bit.
+
+📌 DP Table
+dp[i][j] = number of ways to choose j ones in i bits
+
+
+This is just nCr (combinations).
+
+Build DP
+dp[i][j] = dp[i-1][j] + dp[i-1][j-1]
+
+🧠 Greedy Construction
+
+Suppose we have:
+
+bits = 50
+ones = k
+need = n
+
+
+We try from MSB to LSB.
+
+At each position:
+
+Option 1: Put 0
+
+How many numbers possible if we put 0?
+
+count = C(remaining_bits, ones)
+
+If count >= need
+
+→ Put 0
+
+Else
+
+→ Put 1
+→ need -= count
+→ ones -= 1
+
+Repeat.
+
+✅ DP + Greedy Code (O(nk))
+class Solution(object):
+    def findNthSmallest(self, n, k):
+
+        MAX = 51
+
+        # Step 1: Build DP (nCr)
+        dp = [[0]*(MAX) for _ in range(MAX)]
+
+        for i in range(MAX):
+            dp[i][0] = 1
+
+        for i in range(1, MAX):
+            for j in range(1, i+1):
+                dp[i][j] = dp[i-1][j] + dp[i-1][j-1]
+
+        # Step 2: Greedy construction
+        res = 0
+        ones = k
+        need = n
+
+        for pos in range(50, -1, -1):
+
+            if ones == 0:
+                break
+
+            # count if we put 0 here
+            if pos >= ones:
+                count = dp[pos][ones]
+            else:
+                count = 0
+
+            if count >= need:
+                # put 0
+                continue
+            else:
+                # put 1
+                res |= (1 << pos)
+                need -= count
+                ones -= 1
+
+        return res
+
+⏱ Complexity
+Part	Cost
+DP	O(k²)
+Build	O(k)
+Total	O(n·k)
+
+Space = O(k²)
+
+🟠 2️⃣ Pure DP Version (Not Recommended)
+
+You can also generate numbers by DP:
+
+dp[i][j] = list of numbers with i bits, j ones
+
+
+But this:
+
+❌ Uses huge memory
+❌ Gets MLE
+
+So avoid.
+
+🏆 3️⃣ Best: Gosper vs DP+Greedy
+Method	Time	Space	Use When
+Gosper	O(n)	O(1)	Best
+DP+Greedy	O(nk)	O(k²)	When ordering matters
+Brute	O(nk)	O(1)	Small input
+⭐ Interview Tip
+
+If asked:
+
+“Why DP+Greedy?”
+
+Say:
+
+“We count how many valid numbers start with a prefix, and greedily decide bits.”
+
+This shows strong thinking 💯
+
+If you want, next I can explain:
+
+👉 How to derive this DP
+👉 Similar kth binary string problems
+👉 Practice set
+
+Just tell me 😊
+
+Memory almost full
+soltion:
+from collections import deque
+
+class Solution(object):
+    def countSpecialNodes(self, n, edges, x, y, z):
+
+        # Step 1: Build graph
+        graph = [[] for _ in range(n)]
+
+        for u, v in edges:
+            graph[u].append(v)
+            graph[v].append(u)
+
+        # BFS function
+        def bfs(start):
+            dist = [-1] * n
+            q = deque()
+
+            q.append(start)
+            dist[start] = 0
+
+            while q:
+                u = q.popleft()
+
+                for v in graph[u]:
+                    if dist[v] == -1:
+                        dist[v] = dist[u] + 1
+                        q.append(v)
+
+            return dist
+
+        # Step 2–4: Distances
+        dx = bfs(x)
+        dy = bfs(y)
+        dz = bfs(z)
+
+        # Step 5: Count special nodes
+        count = 0
+
+        for i in range(n):
+            a, b, c = sorted([dx[i], dy[i], dz[i]])
+
+            if a*a + b*b == c*c:
+                count += 1
+
+        return count
